@@ -5,7 +5,7 @@ import SwiftData
 struct StudySpotsApp: App {
 
     let modelContainer: ModelContainer = {
-        let schema = Schema([StudySpot.self, Review.self])
+        let schema = Schema([StudySpot.self, Review.self, UserProfile.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         guard let container = try? ModelContainer(for: schema, configurations: config) else {
             fatalError("Failed to create ModelContainer.")

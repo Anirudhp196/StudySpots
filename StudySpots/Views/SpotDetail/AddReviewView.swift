@@ -7,11 +7,15 @@ struct AddReviewView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
+    @Query private var profiles: [UserProfile]
+
     @State private var authorName = ""
     @State private var rating: Double = 3.0
     @State private var noiseLevel: NoiseLevel = .moderate
     @State private var crowdDensity: CrowdDensity = .moderate
     @State private var notes = ""
+
+    private var profile: UserProfile? { profiles.first }
 
     private var isValid: Bool {
         !authorName.trimmingCharacters(in: .whitespaces).isEmpty
@@ -20,8 +24,28 @@ struct AddReviewView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Your Name") {
-                    TextField("e.g. Alex R.", text: $authorName)
+                // Only show name field if there's no profile set up
+                if profile == nil {
+                    Section("Your Name") {
+                        TextField("e.g. Alex R.", text: $authorName)
+                    }
+                } else {
+                    Section {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(.blue.opacity(0.15))
+                                    .frame(width: 36, height: 36)
+                                Text(profile!.initials)
+                                    .font(.subheadline.weight(.bold))
+                                    .foregroundStyle(.blue)
+                            }
+                            Text(profile!.name)
+                                .font(.subheadline.weight(.medium))
+                        }
+                    } header: {
+                        Text("Posting as")
+                    }
                 }
 
                 Section {
@@ -73,10 +97,13 @@ struct AddReviewView: View {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Submit") {
-                        submitReview()
-                    }
-                    .disabled(!isValid)
+                    Button("Submit") { submitReview() }
+                        .disabled(!isValid)
+                }
+            }
+            .onAppear {
+                if let profile {
+                    authorName = profile.name
                 }
             }
         }
@@ -88,7 +115,8 @@ struct AddReviewView: View {
             rating: rating,
             noiseLevel: noiseLevel,
             crowdDensity: crowdDensity,
-            notes: notes.trimmingCharacters(in: .whitespacesAndNewlines)
+            notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
+            isOwnReview: profile != nil
         )
         review.spot = spot
         modelContext.insert(review)

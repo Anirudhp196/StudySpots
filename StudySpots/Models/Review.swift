@@ -10,6 +10,7 @@ final class Review {
     var crowdDensity: CrowdDensity
     var notes: String
     var timestamp: Date
+    var isOwnReview: Bool
     var spot: StudySpot?
 
     init(
@@ -19,7 +20,8 @@ final class Review {
         noiseLevel: NoiseLevel,
         crowdDensity: CrowdDensity,
         notes: String,
-        timestamp: Date = .now
+        timestamp: Date = .now,
+        isOwnReview: Bool = false
     ) {
         self.id = id
         self.authorName = authorName
@@ -28,5 +30,6 @@ final class Review {
         self.crowdDensity = crowdDensity
         self.notes = notes
         self.timestamp = timestamp
+        self.isOwnReview = isOwnReview
     }
 }

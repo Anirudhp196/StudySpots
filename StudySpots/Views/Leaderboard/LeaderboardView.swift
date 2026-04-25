@@ -1,45 +1,63 @@
 import SwiftUI
 import SwiftData
 
-enum LeaderboardFilter: String, CaseIterable {
+private enum LeaderboardScope: String, CaseIterable {
     case all = "All Spots"
-    case bookmarked = "Bookmarked"
+    case saved = "Saved"
 }
 
 struct LeaderboardView: View {
 
     @Query private var allSpots: [StudySpot]
-    @State private var filter: LeaderboardFilter = .all
+
+    @State private var scope: LeaderboardScope = .all
+    @State private var showFilters = false
+    @State private var minReviews: Int = 1
+    @State private var minScore: Double = 0.0
 
     private var rankedSpots: [StudySpot] {
-        let pool = filter == .bookmarked
-            ? allSpots.filter(\.isBookmarked)
-            : allSpots
-
+        let pool = scope == .saved ? allSpots.filter(\.isBookmarked) : allSpots
         return pool
-            .filter { !$0.reviews.isEmpty }
+            .filter { $0.reviews.count >= minReviews }
+            .filter { $0.averageRating >= minScore }
             .sorted { $0.averageRating > $1.averageRating }
+    }
+
+    private var hasActiveFilters: Bool {
+        minReviews > 1 || minScore > 0
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                Picker("Filter", selection: $filter) {
-                    ForEach(LeaderboardFilter.allCases, id: \.self) { f in
-                        Text(f.rawValue).tag(f)
+                Picker("Scope", selection: $scope) {
+                    ForEach(LeaderboardScope.allCases, id: \.self) { s in
+                        Text(s.rawValue).tag(s)
                     }
                 }
                 .pickerStyle(.segmented)
-                .padding()
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+
+                if showFilters {
+                    filterPanel
+                        .padding(.horizontal)
+                        .padding(.bottom, 10)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
+                Divider()
 
                 if rankedSpots.isEmpty {
                     ContentUnavailableView(
-                        filter == .bookmarked ? "No Bookmarks Yet" : "No Rated Spots",
-                        systemImage: filter == .bookmarked ? "bookmark" : "trophy",
+                        scope == .saved ? "No Saved Spots" : "No Rated Spots",
+                        systemImage: scope == .saved ? "bookmark" : "trophy",
                         description: Text(
-                            filter == .bookmarked
-                                ? "Bookmark spots to track your favorites here."
-                                : "Spots with reviews will appear here."
+                            hasActiveFilters
+                                ? "Try relaxing your filters."
+                                : scope == .saved
+                                    ? "Bookmark spots to track your favorites here."
+                                    : "Spots with reviews will appear here."
                         )
                     )
                 } else {
@@ -53,11 +71,74 @@ struct LeaderboardView: View {
                     .listStyle(.plain)
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: showFilters)
             .navigationTitle("Rankings")
             .navigationDestination(for: StudySpot.self) { spot in
                 SpotDetailView(spot: spot)
             }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        withAnimation { showFilters.toggle() }
+                    } label: {
+                        Image(systemName: hasActiveFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                            .foregroundStyle(hasActiveFilters ? .blue : .primary)
+                    }
+                }
+            }
         }
+    }
+
+    private var filterPanel: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Text("Filters")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                if hasActiveFilters {
+                    Button("Reset") {
+                        minReviews = 1
+                        minScore = 0
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("Min reviews")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Spacer()
+                    Text("\(minReviews)+")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.blue)
+                        .frame(width: 32, alignment: .trailing)
+                }
+                Slider(value: Binding(
+                    get: { Double(minReviews) },
+                    set: { minReviews = Int($0) }
+                ), in: 1...10, step: 1)
+                .tint(.blue)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("Min score")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Spacer()
+                    Text(minScore > 0 ? String(format: "%.1f+", minScore) : "Any")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.yellow)
+                        .frame(width: 36, alignment: .trailing)
+                }
+                Slider(value: $minScore, in: 0...5, step: 0.5)
+                    .tint(.yellow)
+            }
+        }
+        .padding()
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -68,7 +149,6 @@ struct LeaderboardRowView: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            // Rank medal / number
             ZStack {
                 Circle()
                     .fill(medalColor.opacity(0.15))
@@ -85,18 +165,14 @@ struct LeaderboardRowView: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(spot.name)
-                    .font(.headline)
-                    .lineLimit(1)
+                    .font(.headline).lineLimit(1)
                 HStack(spacing: 4) {
                     Text("\(spot.reviews.count) review\(spot.reviews.count == 1 ? "" : "s")")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.caption).foregroundStyle(.secondary)
                     if let noise = spot.dominantNoiseLevel {
-                        Text("·")
-                            .foregroundStyle(.secondary)
+                        Text("·").foregroundStyle(.secondary)
                         Label(noise.rawValue, systemImage: noise.icon)
-                            .font(.caption)
-                            .foregroundStyle(.blue)
+                            .font(.caption).foregroundStyle(.blue)
                     }
                 }
             }
@@ -106,15 +182,13 @@ struct LeaderboardRowView: View {
             VStack(alignment: .trailing, spacing: 2) {
                 HStack(spacing: 3) {
                     Image(systemName: "star.fill")
-                        .foregroundStyle(.yellow)
-                        .font(.caption)
+                        .foregroundStyle(.yellow).font(.caption)
                     Text(String(format: "%.1f", spot.averageRating))
                         .font(.headline.weight(.bold))
                 }
                 if spot.isBookmarked {
                     Image(systemName: "bookmark.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.blue)
+                        .font(.caption2).foregroundStyle(.blue)
                 }
             }
         }
