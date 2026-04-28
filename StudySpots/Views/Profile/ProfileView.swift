@@ -122,61 +122,57 @@ struct ProfileView: View {
     // MARK: - Header & Stats
 
     private var profileHeader: some View {
-        ZStack(alignment: .bottomLeading) {
-            // Gradient banner
+        ZStack(alignment: .topTrailing) {
             LinearGradient(
                 colors: [.blue.opacity(0.7), .blue.opacity(0.3)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .frame(height: 100)
             .clipShape(RoundedRectangle(cornerRadius: 16))
 
-            HStack(alignment: .bottom, spacing: 14) {
-                // Avatar — overlaps the banner bottom edge
+            // Edit button
+            Button {
+                if profile != nil { showEditName = true } else { showSetup = true }
+            } label: {
+                Image(systemName: profile != nil ? "pencil.circle.fill" : "person.crop.circle.badge.plus")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+            }
+            .buttonStyle(.plain)
+            .padding(12)
+
+            // Avatar + name at bottom
+            HStack(alignment: .center, spacing: 14) {
                 ZStack {
                     Circle()
-                        .fill(.background)
-                        .frame(width: 76, height: 76)
-                    Circle()
-                        .fill(.blue.opacity(0.15))
-                        .frame(width: 70, height: 70)
+                        .fill(.white.opacity(0.25))
+                        .frame(width: 72, height: 72)
                     Text(profile?.initials ?? "?")
                         .font(.system(size: 26, weight: .bold))
-                        .foregroundStyle(.blue)
-                }
-                .offset(y: 28)
-
-                Spacer()
-
-                Button {
-                    if profile != nil { showEditName = true } else { showSetup = true }
-                } label: {
-                    Image(systemName: profile != nil ? "pencil.circle.fill" : "person.crop.circle.badge.plus")
-                        .font(.title2)
                         .foregroundStyle(.white)
                 }
-                .buttonStyle(.plain)
-                .padding(12)
-            }
-            .padding(.horizontal, 12)
-        }
-        .padding(.top, 8)
-        .padding(.bottom, 36)
-        .overlay(alignment: .bottomLeading) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(profile?.name ?? "Set up your profile")
-                    .font(.title3.weight(.semibold))
-                if profile != nil {
-                    Text("StudySpots member")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(profile?.name ?? "Set up your profile")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
+                    if profile != nil {
+                        Text("StudySpots member")
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
                 }
+
+                Spacer()
             }
-            .padding(.leading, 100)
-            .padding(.bottom, 4)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         }
+        .frame(height: 140)
         .padding(.horizontal)
+        .padding(.top, 8)
+        .padding(.bottom, 4)
     }
 
     private var statsGrid: some View {
