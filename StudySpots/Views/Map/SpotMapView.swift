@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import MapKit
+internal import CoreLocation
 
 struct SpotMapView: View {
 

@@ -1,5 +1,5 @@
 import SwiftData
-import CoreLocation
+internal import CoreLocation
 
 enum NoiseLevel: String, Codable, CaseIterable {
     case quiet = "Quiet"

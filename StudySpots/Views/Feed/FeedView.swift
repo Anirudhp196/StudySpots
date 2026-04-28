@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+internal import CoreLocation
 
 struct FeedView: View {
 

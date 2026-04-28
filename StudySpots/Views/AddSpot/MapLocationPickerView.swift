@@ -1,6 +1,6 @@
 import SwiftUI
 import MapKit
-import CoreLocation
+internal import CoreLocation
 
 struct MapLocationPickerView: View {
 

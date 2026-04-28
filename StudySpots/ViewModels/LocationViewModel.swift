@@ -1,5 +1,5 @@
 import Observation
-import CoreLocation
+internal import CoreLocation
 
 @Observable
 final class LocationViewModel: NSObject, CLLocationManagerDelegate {
