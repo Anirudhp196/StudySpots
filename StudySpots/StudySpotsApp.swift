@@ -22,10 +22,18 @@ struct StudySpotsApp: App {
     }
 
     private func seedIfNeeded() {
-        guard !UserDefaults.standard.bool(forKey: "hasSeededData") else { return }
         let context = ModelContext(modelContainer)
-        SampleData.seed(into: context)
-        try? context.save()
-        UserDefaults.standard.set(true, forKey: "hasSeededData")
+
+        if !UserDefaults.standard.bool(forKey: "hasSeededData") {
+            SampleData.seed(into: context)
+            try? context.save()
+            UserDefaults.standard.set(true, forKey: "hasSeededData")
+        }
+
+        if !UserDefaults.standard.bool(forKey: "hasSeededCafes") {
+            SampleData.seedCafes(into: context)
+            try? context.save()
+            UserDefaults.standard.set(true, forKey: "hasSeededCafes")
+        }
     }
 }
