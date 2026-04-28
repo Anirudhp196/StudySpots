@@ -8,6 +8,7 @@ struct FeedView: View {
     @State private var showAddSpot = false
     @State private var noiseFilter: NoiseLevel? = nil
     @State private var crowdFilter: CrowdDensity? = nil
+    @AppStorage("swipeHintDismissed") private var swipeHintDismissed = false
 
     private var hasActiveFilters: Bool {
         noiseFilter != nil || crowdFilter != nil
@@ -26,6 +27,30 @@ struct FeedView: View {
                 filterChips
                     .padding(.horizontal)
                     .padding(.vertical, 8)
+
+                if !swipeHintDismissed && !spots.isEmpty {
+                    HStack(spacing: 8) {
+                        Image(systemName: "hand.draw.fill")
+                            .font(.caption)
+                            .foregroundStyle(.blue)
+                        Text("Swipe right on a card to bookmark it")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button {
+                            withAnimation { swipeHintDismissed = true }
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(.blue.opacity(0.06))
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
                 Divider()
 
                 Group {

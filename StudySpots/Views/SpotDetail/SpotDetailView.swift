@@ -190,6 +190,12 @@ struct SpotDetailView: View {
                 }
             }
 
+            if spot.reviews.contains(where: \.isOwnReview) {
+                Label("Hold your review to edit or delete it", systemImage: "hand.tap")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+
             if spot.reviews.isEmpty {
                 ContentUnavailableView(
                     "No Reviews Yet",

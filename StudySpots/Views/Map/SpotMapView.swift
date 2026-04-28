@@ -6,6 +6,7 @@ struct SpotMapView: View {
 
     @Query private var spots: [StudySpot]
     @Environment(LocationViewModel.self) private var locationVM
+    @Environment(\.modelContext) private var modelContext
 
     @State private var selectedSpot: StudySpot?
     @State private var showDetail = false
@@ -19,10 +20,8 @@ struct SpotMapView: View {
     var body: some View {
         NavigationStack {
             Map(position: $cameraPosition) {
-                // User location dot
                 UserAnnotation()
 
-                // Study spot pins
                 ForEach(spots) { spot in
                     Annotation(spot.name, coordinate: spot.coordinate) {
                         SpotPinView(
@@ -32,6 +31,10 @@ struct SpotMapView: View {
                         .onTapGesture {
                             withAnimation(.spring(response: 0.3)) {
                                 selectedSpot = spot
+                                cameraPosition = .region(MKCoordinateRegion(
+                                    center: spot.coordinate,
+                                    span: MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+                                ))
                             }
                         }
                     }
@@ -45,7 +48,6 @@ struct SpotMapView: View {
             }
             .navigationTitle("Map")
             .navigationBarTitleDisplayMode(.inline)
-            // Spot preview card at bottom
             .safeAreaInset(edge: .bottom) {
                 if let spot = selectedSpot {
                     spotPreviewCard(spot)
@@ -94,6 +96,16 @@ struct SpotMapView: View {
             Spacer()
 
             Button {
+                spot.isBookmarked.toggle()
+                try? modelContext.save()
+            } label: {
+                Image(systemName: spot.isBookmarked ? "bookmark.fill" : "bookmark")
+                    .symbolEffect(.bounce, value: spot.isBookmarked)
+                    .foregroundStyle(spot.isBookmarked ? .blue : .secondary)
+                    .font(.title3)
+            }
+
+            Button {
                 showDetail = true
             } label: {
                 Text("View")
@@ -129,16 +141,20 @@ struct SpotPinView: View {
     let spot: StudySpot
     let isSelected: Bool
 
+    private var pinColor: Color {
+        spot.isUserAdded ? .green : .blue
+    }
+
     var body: some View {
         VStack(spacing: 2) {
             ZStack {
                 Circle()
-                    .fill(isSelected ? .blue : .white)
+                    .fill(isSelected ? pinColor : .white)
                     .frame(width: isSelected ? 44 : 36, height: isSelected ? 44 : 36)
                     .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
 
-                Image(systemName: "book.fill")
-                    .foregroundStyle(isSelected ? .white : .blue)
+                Image(systemName: spot.isUserAdded ? "plus.circle.fill" : "book.fill")
+                    .foregroundStyle(isSelected ? .white : pinColor)
                     .font(isSelected ? .body : .subheadline)
             }
 
