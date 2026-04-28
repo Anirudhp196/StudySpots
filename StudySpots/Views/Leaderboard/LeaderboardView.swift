@@ -149,12 +149,14 @@ struct LeaderboardRowView: View {
 
     var body: some View {
         HStack(spacing: 14) {
+            // Rank badge
             ZStack {
                 Circle()
-                    .fill(medalColor.opacity(0.15))
-                    .frame(width: 40, height: 40)
+                    .fill(medalColor.opacity(rank <= 3 ? 0.2 : 0.1))
+                    .frame(width: 42, height: 42)
                 if rank <= 3 {
                     Image(systemName: "medal.fill")
+                        .font(.body)
                         .foregroundStyle(medalColor)
                 } else {
                     Text("\(rank)")
@@ -192,13 +194,17 @@ struct LeaderboardRowView: View {
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background(rank <= 3 ? medalColor.opacity(0.06) : Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .listRowBackground(Color.clear)
     }
 
     private var medalColor: Color {
         switch rank {
         case 1: return .yellow
-        case 2: return Color(white: 0.6)
+        case 2: return Color(white: 0.55)
         case 3: return Color(red: 0.8, green: 0.5, blue: 0.2)
         default: return .secondary
         }

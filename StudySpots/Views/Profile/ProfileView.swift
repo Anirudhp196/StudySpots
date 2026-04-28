@@ -122,17 +122,49 @@ struct ProfileView: View {
     // MARK: - Header & Stats
 
     private var profileHeader: some View {
-        HStack(spacing: 16) {
-            ZStack {
-                Circle()
-                    .fill(.blue.opacity(0.15))
-                    .frame(width: 72, height: 72)
-                Text(profile?.initials ?? "?")
-                    .font(.system(size: 26, weight: .bold))
-                    .foregroundStyle(.blue)
-            }
+        ZStack(alignment: .bottomLeading) {
+            // Gradient banner
+            LinearGradient(
+                colors: [.blue.opacity(0.7), .blue.opacity(0.3)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .frame(height: 100)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
 
-            VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .bottom, spacing: 14) {
+                // Avatar — overlaps the banner bottom edge
+                ZStack {
+                    Circle()
+                        .fill(.background)
+                        .frame(width: 76, height: 76)
+                    Circle()
+                        .fill(.blue.opacity(0.15))
+                        .frame(width: 70, height: 70)
+                    Text(profile?.initials ?? "?")
+                        .font(.system(size: 26, weight: .bold))
+                        .foregroundStyle(.blue)
+                }
+                .offset(y: 28)
+
+                Spacer()
+
+                Button {
+                    if profile != nil { showEditName = true } else { showSetup = true }
+                } label: {
+                    Image(systemName: profile != nil ? "pencil.circle.fill" : "person.crop.circle.badge.plus")
+                        .font(.title2)
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+                .padding(12)
+            }
+            .padding(.horizontal, 12)
+        }
+        .padding(.top, 8)
+        .padding(.bottom, 36)
+        .overlay(alignment: .bottomLeading) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(profile?.name ?? "Set up your profile")
                     .font(.title3.weight(.semibold))
                 if profile != nil {
@@ -141,18 +173,10 @@ struct ProfileView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-
-            Spacer()
-
-            Button {
-                if profile != nil { showEditName = true } else { showSetup = true }
-            } label: {
-                Image(systemName: profile != nil ? "pencil" : "person.crop.circle.badge.plus")
-                    .foregroundStyle(.blue)
-            }
-            .buttonStyle(.plain)
+            .padding(.leading, 100)
+            .padding(.bottom, 4)
         }
-        .padding()
+        .padding(.horizontal)
     }
 
     private var statsGrid: some View {
@@ -272,14 +296,29 @@ struct StatTileView: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            Image(systemName: icon).font(.title2).foregroundStyle(color)
-            Text(value).font(.title2.weight(.bold))
-            Text(label).font(.caption).foregroundStyle(.secondary)
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.15))
+                    .frame(width: 40, height: 40)
+                Image(systemName: icon)
+                    .font(.body)
+                    .foregroundStyle(color)
+            }
+            Text(value)
+                .font(.title2.weight(.bold))
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background(color.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.vertical, 14)
+        .background(color.opacity(0.07))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(color.opacity(0.15), lineWidth: 1)
+        )
     }
 }
 

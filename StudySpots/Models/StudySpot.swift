@@ -38,6 +38,7 @@ final class StudySpot {
     var longitude: Double
     var isBookmarked: Bool
     var visitCount: Int
+    var isUserAdded: Bool
 
     @Relationship(deleteRule: .cascade, inverse: \Review.spot)
     var reviews: [Review] = []
@@ -56,6 +57,7 @@ final class StudySpot {
         self.longitude = longitude
         self.isBookmarked = false
         self.visitCount = 0
+        self.isUserAdded = false
     }
 
     var coordinate: CLLocationCoordinate2D {

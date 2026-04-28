@@ -4,27 +4,39 @@ import SwiftData
 struct AddReviewView: View {
 
     let spot: StudySpot
+    let existingReview: Review?
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
     @Query private var profiles: [UserProfile]
 
-    @State private var authorName = ""
-    @State private var rating: Double = 3.0
-    @State private var noiseLevel: NoiseLevel = .moderate
-    @State private var crowdDensity: CrowdDensity = .moderate
-    @State private var notes = ""
+    @State private var authorName: String
+    @State private var rating: Double
+    @State private var noiseLevel: NoiseLevel
+    @State private var crowdDensity: CrowdDensity
+    @State private var notes: String
 
     private var profile: UserProfile? { profiles.first }
+    private var isEditing: Bool { existingReview != nil }
 
     private var isValid: Bool {
         !authorName.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
+    init(spot: StudySpot, existingReview: Review? = nil) {
+        self.spot = spot
+        self.existingReview = existingReview
+        _rating = State(initialValue: existingReview?.rating ?? 3.0)
+        _noiseLevel = State(initialValue: existingReview?.noiseLevel ?? .moderate)
+        _crowdDensity = State(initialValue: existingReview?.crowdDensity ?? .moderate)
+        _notes = State(initialValue: existingReview?.notes ?? "")
+        _authorName = State(initialValue: existingReview?.authorName ?? "")
+    }
+
     var body: some View {
         NavigationStack {
             Form {
-                // Only show name field if there's no profile set up
                 if profile == nil {
                     Section("Your Name") {
                         TextField("e.g. Alex R.", text: $authorName)
@@ -90,19 +102,19 @@ struct AddReviewView: View {
                         .frame(minHeight: 80)
                 }
             }
-            .navigationTitle("Write a Review")
+            .navigationTitle(isEditing ? "Edit Review" : "Write a Review")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Submit") { submitReview() }
+                    Button(isEditing ? "Save" : "Submit") { submitReview() }
                         .disabled(!isValid)
                 }
             }
             .onAppear {
-                if let profile {
+                if existingReview == nil, let profile {
                     authorName = profile.name
                 }
             }
@@ -110,18 +122,26 @@ struct AddReviewView: View {
     }
 
     private func submitReview() {
-        let review = Review(
-            authorName: authorName.trimmingCharacters(in: .whitespaces),
-            rating: rating,
-            noiseLevel: noiseLevel,
-            crowdDensity: crowdDensity,
-            notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
-            isOwnReview: profile != nil
-        )
-        review.spot = spot
-        modelContext.insert(review)
-        spot.visitCount += 1
-        try? modelContext.save()
+        if let existing = existingReview {
+            existing.rating = rating
+            existing.noiseLevel = noiseLevel
+            existing.crowdDensity = crowdDensity
+            existing.notes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+            try? modelContext.save()
+        } else {
+            let review = Review(
+                authorName: authorName.trimmingCharacters(in: .whitespaces),
+                rating: rating,
+                noiseLevel: noiseLevel,
+                crowdDensity: crowdDensity,
+                notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
+                isOwnReview: profile != nil
+            )
+            review.spot = spot
+            modelContext.insert(review)
+            spot.visitCount += 1
+            try? modelContext.save()
+        }
         dismiss()
     }
 

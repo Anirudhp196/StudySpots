@@ -5,35 +5,54 @@ struct FeedView: View {
 
     @Query private var allSpots: [StudySpot]
     @Environment(LocationViewModel.self) private var locationVM
+    @State private var showAddSpot = false
+    @State private var noiseFilter: NoiseLevel? = nil
+    @State private var crowdFilter: CrowdDensity? = nil
+
+    private var hasActiveFilters: Bool {
+        noiseFilter != nil || crowdFilter != nil
+    }
 
     private var spots: [StudySpot] {
-        locationVM.sorted(allSpots)
+        var filtered = allSpots
+        if let n = noiseFilter { filtered = filtered.filter { $0.dominantNoiseLevel == n } }
+        if let c = crowdFilter { filtered = filtered.filter { $0.dominantCrowdDensity == c } }
+        return locationVM.sorted(filtered)
     }
 
     var body: some View {
         NavigationStack {
-            Group {
-                if spots.isEmpty {
-                    ContentUnavailableView(
-                        "No Study Spots",
-                        systemImage: "building.columns",
-                        description: Text("Study spots will appear here once they're loaded.")
-                    )
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(spots) { spot in
-                                NavigationLink(value: spot) {
-                                    SpotCardView(
-                                        spot: spot,
-                                        distanceLabel: locationVM.formattedDistance(to: spot)
-                                    )
+            VStack(spacing: 0) {
+                filterChips
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                Divider()
+
+                Group {
+                    if spots.isEmpty {
+                        ContentUnavailableView(
+                            hasActiveFilters ? "No Matching Spots" : "No Study Spots",
+                            systemImage: hasActiveFilters ? "line.3.horizontal.decrease.circle" : "building.columns",
+                            description: Text(hasActiveFilters
+                                ? "Try clearing your filters."
+                                : "Study spots will appear here once they're loaded.")
+                        )
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: 12) {
+                                ForEach(spots) { spot in
+                                    NavigationLink(value: spot) {
+                                        SwipeableSpotCard(
+                                            spot: spot,
+                                            distanceLabel: locationVM.formattedDistance(to: spot)
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
                         }
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
                     }
                 }
             }
@@ -43,7 +62,56 @@ struct FeedView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    locationStatusButton
+                    HStack(spacing: 16) {
+                        locationStatusButton
+                        Button {
+                            showAddSpot = true
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddSpot) {
+                AddSpotView()
+            }
+        }
+    }
+
+    private var filterChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                if hasActiveFilters {
+                    Button {
+                        noiseFilter = nil
+                        crowdFilter = nil
+                    } label: {
+                        Label("Clear", systemImage: "xmark.circle.fill")
+                            .font(.caption.weight(.medium))
+                            .padding(.horizontal, 10).padding(.vertical, 6)
+                            .background(.red.opacity(0.12))
+                            .foregroundStyle(.red)
+                            .clipShape(Capsule())
+                    }
+                }
+
+                ForEach(NoiseLevel.allCases, id: \.self) { level in
+                    FilterChip(
+                        label: level.rawValue, icon: level.icon,
+                        isSelected: noiseFilter == level, color: .blue
+                    ) {
+                        noiseFilter = noiseFilter == level ? nil : level
+                    }
+                }
+
+                ForEach(CrowdDensity.allCases, id: \.self) { density in
+                    FilterChip(
+                        label: density.rawValue, icon: density.icon,
+                        isSelected: crowdFilter == density, color: .purple
+                    ) {
+                        crowdFilter = crowdFilter == density ? nil : density
+                    }
                 }
             }
         }
