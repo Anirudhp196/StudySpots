@@ -1,3 +1,4 @@
+// Handles text search, noise and crowd filtering, and keeps a list of recently viewed spots.
 import Observation
 import Foundation
 

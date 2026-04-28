@@ -1,3 +1,4 @@
+// Profile tab showing the user's stats, spots they've reviewed, and their saved spots.
 import SwiftUI
 import SwiftData
 
@@ -75,8 +76,6 @@ struct ProfileView: View {
         }
     }
 
-    // MARK: - Sections
-
     @ViewBuilder
     private var beenSection: some View {
         if visitedSpots.isEmpty {
@@ -119,8 +118,6 @@ struct ProfileView: View {
         }
     }
 
-    // MARK: - Header & Stats
-
     private var profileHeader: some View {
         ZStack(alignment: .topTrailing) {
             LinearGradient(
@@ -130,7 +127,6 @@ struct ProfileView: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 16))
 
-            // Edit button
             Button {
                 if profile != nil { showEditName = true } else { showSetup = true }
             } label: {
@@ -141,7 +137,6 @@ struct ProfileView: View {
             .buttonStyle(.plain)
             .padding(12)
 
-            // Avatar + name at bottom
             HStack(alignment: .center, spacing: 14) {
                 ZStack {
                     Circle()
@@ -212,8 +207,6 @@ struct ProfileView: View {
     }
 }
 
-// MARK: - Edit Name Sheet
-
 struct EditNameView: View {
     let profile: UserProfile
     @Environment(\.dismiss) private var dismiss
@@ -248,8 +241,6 @@ struct EditNameView: View {
         }
     }
 }
-
-// MARK: - Row Views
 
 struct VisitedSpotRow: View {
     let spot: StudySpot

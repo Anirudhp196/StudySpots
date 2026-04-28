@@ -1,3 +1,4 @@
+// Interactive map showing all spots as pins, with a preview card when you tap one.
 import SwiftUI
 import SwiftData
 import MapKit

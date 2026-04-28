@@ -1,3 +1,4 @@
+// Sheet for writing or editing a review with fields for rating, noise, crowd, and notes.
 import SwiftUI
 import SwiftData
 

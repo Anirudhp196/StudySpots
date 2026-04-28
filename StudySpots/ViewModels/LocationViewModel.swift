@@ -1,3 +1,4 @@
+// Tracks the user's GPS location and calculates distances to each spot.
 import Observation
 internal import CoreLocation
 
@@ -29,13 +30,11 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         locationManager.stopUpdatingLocation()
     }
 
-    /// Returns the distance in meters from the user to a study spot, or nil if location is unavailable.
     func distance(to spot: StudySpot) -> CLLocationDistance? {
         guard let userLocation else { return nil }
         return spot.distance(from: userLocation)
     }
 
-    /// Human-readable distance string (e.g. "0.3 mi").
     func formattedDistance(to spot: StudySpot) -> String? {
         guard let meters = distance(to: spot) else { return nil }
         let miles = meters / 1609.34
@@ -46,15 +45,12 @@ final class LocationViewModel: NSObject, CLLocationManagerDelegate {
         return String(format: "%.1f mi", miles)
     }
 
-    /// Spots sorted by distance from user. Falls back to original order if location is unavailable.
     func sorted(_ spots: [StudySpot]) -> [StudySpot] {
         guard let userLocation else { return spots }
         return spots.sorted {
             $0.distance(from: userLocation) < $1.distance(from: userLocation)
         }
     }
-
-    // MARK: - CLLocationManagerDelegate
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let latest = locations.last else { return }

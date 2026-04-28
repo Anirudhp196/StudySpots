@@ -1,3 +1,4 @@
+// Data model for a single review, storing rating, noise level, crowd density, and optional notes.
 import SwiftData
 import Foundation
 

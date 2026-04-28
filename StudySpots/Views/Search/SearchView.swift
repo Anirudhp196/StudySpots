@@ -1,3 +1,4 @@
+// Search tab with text search, noise and crowd filter chips, and a recent spots list.
 import SwiftUI
 import SwiftData
 
@@ -47,8 +48,6 @@ struct SearchView: View {
         }
     }
 
-    // MARK: - Browse (empty search)
-
     private var browseView: some View {
         List {
             if !recentSpots.isEmpty {
@@ -93,8 +92,6 @@ struct SearchView: View {
         .listStyle(.plain)
     }
 
-    // MARK: - Search results
-
     private var searchResultsList: some View {
         Group {
             if searchResults.isEmpty {
@@ -114,8 +111,6 @@ struct SearchView: View {
             }
         }
     }
-
-    // MARK: - Filter chips
 
     private var filterChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {

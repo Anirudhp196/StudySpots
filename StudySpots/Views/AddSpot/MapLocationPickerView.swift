@@ -1,3 +1,4 @@
+// Full-screen map where dragging repositions a fixed pin to set the spot's exact location.
 import SwiftUI
 import MapKit
 internal import CoreLocation
@@ -26,7 +27,6 @@ struct MapLocationPickerView: View {
                     }
                     .ignoresSafeArea()
 
-                // Fixed crosshair pin — always at screen center
                 VStack(spacing: 0) {
                     Image(systemName: "mappin.circle.fill")
                         .font(.system(size: 40))
@@ -38,10 +38,8 @@ struct MapLocationPickerView: View {
                         .frame(width: 14, height: 5)
                         .blur(radius: 2)
                 }
-                // Nudge up so pin tip sits at center, not the icon center
                 .offset(y: -24)
 
-                // Hint label
                 VStack {
                     Spacer()
                     Label("Drag the map to move the pin", systemImage: "hand.draw")

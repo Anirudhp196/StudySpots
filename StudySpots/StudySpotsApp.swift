@@ -1,3 +1,4 @@
+// App entry point. Sets up the SwiftData container and loads sample spots on first launch.
 import SwiftUI
 import SwiftData
 

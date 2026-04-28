@@ -1,3 +1,4 @@
+// First-run sheet that asks the user to enter their name before using the app.
 import SwiftUI
 import SwiftData
 

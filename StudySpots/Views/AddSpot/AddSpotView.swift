@@ -1,3 +1,4 @@
+// Form for adding a new spot by typing an address or picking a pin on the map.
 import SwiftUI
 import SwiftData
 import MapKit

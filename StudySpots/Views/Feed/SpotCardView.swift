@@ -1,3 +1,4 @@
+// Card showing a spot's name, address, rating, noise level, and crowd density.
 import SwiftUI
 
 struct SpotCardView: View {
@@ -7,7 +8,6 @@ struct SpotCardView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            // Colored accent bar
             RoundedRectangle(cornerRadius: 3)
                 .fill(ratingColor)
                 .frame(width: 4)
@@ -15,7 +15,6 @@ struct SpotCardView: View {
                 .padding(.leading, 12)
 
             VStack(alignment: .leading, spacing: 10) {
-                // Header row
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(spot.name)
@@ -43,7 +42,6 @@ struct SpotCardView: View {
 
                 Divider()
 
-                // Stats row
                 HStack(spacing: 10) {
                     HStack(spacing: 3) {
                         Image(systemName: "star.fill")

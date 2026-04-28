@@ -1,3 +1,4 @@
+// Detail page for a spot showing a map header, rating stats, and a scrollable review list.
 import SwiftUI
 import SwiftData
 import MapKit
@@ -17,11 +18,9 @@ struct SpotDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
 
-                // Full-width map header
                 miniMap
                     .frame(height: 220)
 
-                // Core info
                 VStack(alignment: .leading, spacing: 20) {
                     headerSection
                     statsRow
@@ -72,8 +71,6 @@ struct SpotDetailView: View {
         }
     }
 
-    // MARK: - Subviews
-
     private var miniMap: some View {
         Map(interactionModes: []) {
             Annotation(spot.name, coordinate: spot.coordinate) {
@@ -117,7 +114,6 @@ struct SpotDetailView: View {
 
     private var statsRow: some View {
         HStack(spacing: 16) {
-            // Rating
             VStack(spacing: 4) {
                 Text(spot.averageRating > 0
                      ? String(format: "%.1f", spot.averageRating)
@@ -139,7 +135,6 @@ struct SpotDetailView: View {
             .background(.yellow.opacity(0.1))
             .clipShape(RoundedRectangle(cornerRadius: 12))
 
-            // Noise
             VStack(spacing: 4) {
                 Image(systemName: spot.dominantNoiseLevel?.icon ?? "speaker.slash.fill")
                     .font(.title2)
@@ -155,7 +150,6 @@ struct SpotDetailView: View {
             .background(.blue.opacity(0.1))
             .clipShape(RoundedRectangle(cornerRadius: 12))
 
-            // Crowd
             VStack(spacing: 4) {
                 Image(systemName: spot.dominantCrowdDensity?.icon ?? "person.fill")
                     .font(.title2)
@@ -270,7 +264,6 @@ struct ReviewRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
-                // Author avatar
                 ZStack {
                     Circle()
                         .fill(review.isOwnReview ? .blue.opacity(0.15) : .secondary.opacity(0.1))

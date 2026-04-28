@@ -1,3 +1,4 @@
+// Root view with five tabs. Creates the location view model and passes it to every tab.
 import SwiftUI
 internal import CoreLocation
 

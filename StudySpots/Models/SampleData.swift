@@ -1,10 +1,9 @@
+// Seeds the app with UPenn study spots and nearby cafes the first time it runs.
 import SwiftData
 import Foundation
 
 enum SampleData {
 
-    /// Inserts UPenn study spots with sample reviews into the model context.
-    /// Should only be called once — guard with UserDefaults to avoid duplication.
     static func seed(into context: ModelContext) {
         let spots: [(name: String, address: String, lat: Double, lon: Double)] = [
             (

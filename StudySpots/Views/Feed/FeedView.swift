@@ -1,3 +1,4 @@
+// Main feed showing spots sorted by distance, with swipeable cards and noise/crowd filters.
 import SwiftUI
 import SwiftData
 internal import CoreLocation

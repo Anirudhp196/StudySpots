@@ -1,3 +1,4 @@
+// Stores the user's display name and generates their initials.
 import SwiftData
 import Foundation
 

@@ -1,3 +1,4 @@
+// Wraps SpotCardView with a horizontal swipe gesture to bookmark or unbookmark a spot.
 import SwiftUI
 import SwiftData
 
@@ -23,8 +24,6 @@ struct SwipeableSpotCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
-    // MARK: - Subviews
-
     private var revealBackground: some View {
         let bookmarked = spot.isBookmarked
         let color: Color = bookmarked ? .red : .blue
@@ -49,14 +48,11 @@ struct SwipeableSpotCard: View {
         }
     }
 
-    // MARK: - Gesture
-
     private var swipeGesture: some Gesture {
         DragGesture(minimumDistance: 20, coordinateSpace: .local)
             .onChanged { value in
                 let h = value.translation.width
                 let v = value.translation.height
-                // Ignore if more vertical than horizontal (let ScrollView scroll)
                 guard abs(h) > abs(v), h > 0 else { return }
 
                 withAnimation(.interactiveSpring(response: 0.3)) {
@@ -79,8 +75,6 @@ struct SwipeableSpotCard: View {
                 triggered = false
             }
     }
-
-    // MARK: - Actions
 
     private func toggleBookmark() {
         spot.isBookmarked.toggle()

@@ -1,3 +1,4 @@
+// The main data model for a study spot, storing its name, location, reviews, and bookmark state.
 import SwiftData
 internal import CoreLocation
 

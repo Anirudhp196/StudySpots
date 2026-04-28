@@ -1,3 +1,4 @@
+// Ranks spots by average rating with optional filters for minimum reviews and score.
 import SwiftUI
 import SwiftData
 
@@ -149,7 +150,6 @@ struct LeaderboardRowView: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            // Rank badge
             ZStack {
                 Circle()
                     .fill(medalColor.opacity(rank <= 3 ? 0.2 : 0.1))
